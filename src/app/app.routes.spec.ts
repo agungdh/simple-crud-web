@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
-import { Router, provideRouter, TitleStrategy } from '@angular/router';
+import { Router, provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from './app.routes';
@@ -13,7 +13,7 @@ describe('app routing', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        provideRouter(routes),
+        provideRouter(routes, withComponentInputBinding()),
         provideHttpClient(),
         AuthService,
         { provide: TitleStrategy, useClass: AppTitleStrategy },
@@ -57,7 +57,7 @@ describe('app routing', () => {
     expect(harness.fixture.nativeElement.querySelector('app-dashboard')).toBeTruthy();
   });
 
-  it('should sync document title on navigation', async () => {
+  it('should sync document title on navigation across list and form pages', async () => {
     authService.setToken('test-token');
     authService.currentUser.set({
       uuid: 'test',
@@ -81,8 +81,16 @@ describe('app routing', () => {
     expect(TestBed.inject(PageTitle).text()).toBe('Data Bidang');
     expect(TestBed.inject(Title).getTitle()).toBe('Data Bidang');
 
-    await harness.navigateByUrl('/pangkat-golongan');
-    expect(TestBed.inject(PageTitle).text()).toBe('Pangkat & Golongan');
-    expect(TestBed.inject(Title).getTitle()).toBe('Pangkat & Golongan');
+    await harness.navigateByUrl('/bidang/create');
+    expect(TestBed.inject(PageTitle).text()).toBe('Tambah Bidang');
+    expect(TestBed.inject(Title).getTitle()).toBe('Tambah Bidang');
+
+    await harness.navigateByUrl('/pegawai/create');
+    expect(TestBed.inject(PageTitle).text()).toBe('Tambah Pegawai');
+    expect(TestBed.inject(Title).getTitle()).toBe('Tambah Pegawai');
+
+    await harness.navigateByUrl('/pangkat-golongan/create');
+    expect(TestBed.inject(PageTitle).text()).toBe('Tambah Pangkat & Golongan');
+    expect(TestBed.inject(Title).getTitle()).toBe('Tambah Pangkat & Golongan');
   });
 });

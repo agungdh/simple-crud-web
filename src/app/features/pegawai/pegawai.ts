@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,15 +15,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PegawaiService } from '../../core/services/pegawai.service';
 import { BidangService } from '../../core/services/bidang.service';
 import { PangkatGolonganService } from '../../core/services/pangkat-golongan.service';
-import {
-  CreatePegawaiRequest,
-  PegawaiResponse,
-  UpdatePegawaiRequest,
-} from '../../core/models/pegawai.model';
+import { PegawaiResponse } from '../../core/models/pegawai.model';
 import { BidangResponse } from '../../core/models/bidang.model';
 import { PangkatGolonganResponse } from '../../core/models/pangkat-golongan.model';
-import { PegawaiFormDialog } from './pegawai-form-dialog';
-import { PegawaiDetailDialog } from './pegawai-detail-dialog';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { StatusChip } from '../../shared/components/status-chip/status-chip';
 
@@ -30,6 +25,7 @@ import { StatusChip } from '../../shared/components/status-chip/status-chip';
   selector: 'app-pegawai',
   imports: [
     FormsModule,
+    RouterLink,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -49,10 +45,10 @@ import { StatusChip } from '../../shared/components/status-chip/status-chip';
           <h1 class="page-title">Data Pegawai & Akun Pengguna</h1>
           <p class="page-subtitle">Kelola informasi pegawai dan akun pengguna relasi 1-to-1</p>
         </div>
-        <button mat-flat-button color="primary" (click)="openAddDialog()">
+        <a mat-flat-button color="primary" routerLink="/pegawai/create">
           <mat-icon aria-hidden="true">person_add</mat-icon>
           <span>Tambah Pegawai</span>
-        </button>
+        </a>
       </div>
 
       <mat-card appearance="outlined" class="content-card">
@@ -149,24 +145,24 @@ import { StatusChip } from '../../shared/components/status-chip/status-chip';
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef class="col-actions">Aksi</th>
                 <td mat-cell *matCellDef="let element" class="col-actions">
-                  <button
+                  <a
                     mat-icon-button
                     color="primary"
-                    (click)="openDetailDialog(element)"
+                    [routerLink]="['/pegawai', element.uuid]"
                     aria-label="Lihat detail pegawai"
                     title="Detail"
                   >
                     <mat-icon aria-hidden="true">visibility</mat-icon>
-                  </button>
-                  <button
+                  </a>
+                  <a
                     mat-icon-button
                     color="primary"
-                    (click)="openEditDialog(element)"
+                    [routerLink]="['/pegawai', element.uuid, 'edit']"
                     aria-label="Edit pegawai"
                     title="Ubah"
                   >
                     <mat-icon aria-hidden="true">edit</mat-icon>
-                  </button>
+                  </a>
                   <button
                     mat-icon-button
                     color="warn"
@@ -247,7 +243,7 @@ import { StatusChip } from '../../shared/components/status-chip/status-chip';
       width: 100%;
     }
     .col-actions {
-      width: 140px;
+      width: 150px;
       text-align: right;
     }
     .name-cell {
@@ -348,62 +344,6 @@ export class Pegawai {
         this.isLoading.set(false);
         this.snackBar.open('Gagal memuat data pegawai', 'Tutup', { duration: 3000 });
       },
-    });
-  }
-
-  protected openDetailDialog(item: PegawaiResponse): void {
-    this.dialog.open(PegawaiDetailDialog, {
-      data: item,
-      width: '520px',
-    });
-  }
-
-  protected openAddDialog(): void {
-    const dialogRef = this.dialog.open(PegawaiFormDialog, {
-      data: {
-        isEdit: false,
-        bidangList: this.bidangList(),
-        pangkatList: this.pangkatList(),
-      },
-      width: '600px',
-    });
-
-    dialogRef.afterClosed().subscribe((result: CreatePegawaiRequest | null) => {
-      if (!result) return;
-      this.pegawaiService.create(result).subscribe({
-        next: () => {
-          this.snackBar.open('Pegawai & Akun berhasil dibuat', 'Tutup', { duration: 3000 });
-          this.loadAllData();
-        },
-        error: (err: { error?: { message?: string } }) => {
-          this.snackBar.open(err.error?.message || 'Gagal menambahkan pegawai', 'Tutup', { duration: 4000 });
-        },
-      });
-    });
-  }
-
-  protected openEditDialog(item: PegawaiResponse): void {
-    const dialogRef = this.dialog.open(PegawaiFormDialog, {
-      data: {
-        isEdit: true,
-        initialData: item,
-        bidangList: this.bidangList(),
-        pangkatList: this.pangkatList(),
-      },
-      width: '600px',
-    });
-
-    dialogRef.afterClosed().subscribe((result: UpdatePegawaiRequest | null) => {
-      if (!result) return;
-      this.pegawaiService.update(item.uuid, result).subscribe({
-        next: () => {
-          this.snackBar.open('Data pegawai berhasil diperbarui', 'Tutup', { duration: 3000 });
-          this.loadAllData();
-        },
-        error: (err: { error?: { message?: string } }) => {
-          this.snackBar.open(err.error?.message || 'Gagal memperbarui pegawai', 'Tutup', { duration: 4000 });
-        },
-      });
     });
   }
 

@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,14 +11,14 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BidangService } from '../../core/services/bidang.service';
-import { BidangRequest, BidangResponse } from '../../core/models/bidang.model';
-import { BidangDialog } from './bidang-dialog';
+import { BidangResponse } from '../../core/models/bidang.model';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-bidang',
   imports: [
     FormsModule,
+    RouterLink,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -35,10 +36,10 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
           <h1 class="page-title">Master Data Bidang</h1>
           <p class="page-subtitle">Kelola data bidang struktur organisasi</p>
         </div>
-        <button mat-flat-button color="primary" (click)="openAddDialog()">
+        <a mat-flat-button color="primary" routerLink="/bidang/create">
           <mat-icon aria-hidden="true">add</mat-icon>
           <span>Tambah Bidang</span>
-        </button>
+        </a>
       </div>
 
       <mat-card appearance="outlined" class="content-card">
@@ -91,15 +92,15 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef class="col-actions">Aksi</th>
                 <td mat-cell *matCellDef="let element" class="col-actions">
-                  <button
+                  <a
                     mat-icon-button
                     color="primary"
-                    (click)="openEditDialog(element)"
+                    [routerLink]="['/bidang', element.uuid, 'edit']"
                     aria-label="Edit bidang"
                     title="Ubah"
                   >
                     <mat-icon aria-hidden="true">edit</mat-icon>
-                  </button>
+                  </a>
                   <button
                     mat-icon-button
                     color="warn"
@@ -233,46 +234,6 @@ export class Bidang {
         this.isLoading.set(false);
         this.snackBar.open('Gagal memuat data bidang', 'Tutup', { duration: 3000 });
       },
-    });
-  }
-
-  protected openAddDialog(): void {
-    const dialogRef = this.dialog.open(BidangDialog, {
-      data: { isEdit: false },
-      width: '450px',
-    });
-
-    dialogRef.afterClosed().subscribe((result: BidangRequest | null) => {
-      if (!result) return;
-      this.bidangService.create(result).subscribe({
-        next: () => {
-          this.snackBar.open('Bidang berhasil ditambahkan', 'Tutup', { duration: 3000 });
-          this.loadData();
-        },
-        error: () => {
-          this.snackBar.open('Gagal menambahkan bidang', 'Tutup', { duration: 3000 });
-        },
-      });
-    });
-  }
-
-  protected openEditDialog(item: BidangResponse): void {
-    const dialogRef = this.dialog.open(BidangDialog, {
-      data: { isEdit: true, initialData: item },
-      width: '450px',
-    });
-
-    dialogRef.afterClosed().subscribe((result: BidangRequest | null) => {
-      if (!result) return;
-      this.bidangService.update(item.uuid, result).subscribe({
-        next: () => {
-          this.snackBar.open('Bidang berhasil diperbarui', 'Tutup', { duration: 3000 });
-          this.loadData();
-        },
-        error: () => {
-          this.snackBar.open('Gagal memperbarui bidang', 'Tutup', { duration: 3000 });
-        },
-      });
     });
   }
 

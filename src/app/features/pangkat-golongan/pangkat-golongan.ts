@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,14 +11,14 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PangkatGolonganService } from '../../core/services/pangkat-golongan.service';
-import { PangkatGolonganRequest, PangkatGolonganResponse } from '../../core/models/pangkat-golongan.model';
-import { PangkatGolonganDialog } from './pangkat-golongan-dialog';
+import { PangkatGolonganResponse } from '../../core/models/pangkat-golongan.model';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-pangkat-golongan',
   imports: [
     FormsModule,
+    RouterLink,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -35,10 +36,10 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
           <h1 class="page-title">Master Data Pangkat & Golongan</h1>
           <p class="page-subtitle">Kelola klasifikasi kepangkatan, golongan, dan ruang pegawai</p>
         </div>
-        <button mat-flat-button color="primary" (click)="openAddDialog()">
+        <a mat-flat-button color="primary" routerLink="/pangkat-golongan/create">
           <mat-icon aria-hidden="true">add</mat-icon>
           <span>Tambah Pangkat / Golongan</span>
-        </button>
+        </a>
       </div>
 
       <mat-card appearance="outlined" class="content-card">
@@ -96,15 +97,15 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef class="col-actions">Aksi</th>
                 <td mat-cell *matCellDef="let element" class="col-actions">
-                  <button
+                  <a
                     mat-icon-button
                     color="primary"
-                    (click)="openEditDialog(element)"
+                    [routerLink]="['/pangkat-golongan', element.uuid, 'edit']"
                     aria-label="Edit pangkat golongan"
                     title="Ubah"
                   >
                     <mat-icon aria-hidden="true">edit</mat-icon>
-                  </button>
+                  </a>
                   <button
                     mat-icon-button
                     color="warn"
@@ -247,46 +248,6 @@ export class PangkatGolongan {
         this.isLoading.set(false);
         this.snackBar.open('Gagal memuat data pangkat & golongan', 'Tutup', { duration: 3000 });
       },
-    });
-  }
-
-  protected openAddDialog(): void {
-    const dialogRef = this.dialog.open(PangkatGolonganDialog, {
-      data: { isEdit: false },
-      width: '450px',
-    });
-
-    dialogRef.afterClosed().subscribe((result: PangkatGolonganRequest | null) => {
-      if (!result) return;
-      this.pangkatService.create(result).subscribe({
-        next: () => {
-          this.snackBar.open('Pangkat & Golongan berhasil ditambahkan', 'Tutup', { duration: 3000 });
-          this.loadData();
-        },
-        error: () => {
-          this.snackBar.open('Gagal menambahkan pangkat & golongan', 'Tutup', { duration: 3000 });
-        },
-      });
-    });
-  }
-
-  protected openEditDialog(item: PangkatGolonganResponse): void {
-    const dialogRef = this.dialog.open(PangkatGolonganDialog, {
-      data: { isEdit: true, initialData: item },
-      width: '450px',
-    });
-
-    dialogRef.afterClosed().subscribe((result: PangkatGolonganRequest | null) => {
-      if (!result) return;
-      this.pangkatService.update(item.uuid, result).subscribe({
-        next: () => {
-          this.snackBar.open('Pangkat & Golongan berhasil diperbarui', 'Tutup', { duration: 3000 });
-          this.loadData();
-        },
-        error: () => {
-          this.snackBar.open('Gagal memperbarui pangkat & golongan', 'Tutup', { duration: 3000 });
-        },
-      });
     });
   }
 
