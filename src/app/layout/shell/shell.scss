@@ -41,6 +41,7 @@
   padding: 20px 16px;
   font: var(--mat-sys-title-medium);
   color: var(--mat-sys-on-surface);
+  font-weight: 700;
 
   mat-icon {
     color: var(--mat-sys-primary);
@@ -75,6 +76,8 @@
   border-bottom: 1px solid var(--mat-sys-outline-variant);
   background-color: var(--mat-sys-surface-container);
   color: var(--mat-sys-on-surface);
+  display: flex;
+  align-items: center;
 }
 
 .shell__title {
@@ -86,8 +89,34 @@
   flex: 1 1 auto;
 }
 
+.shell__user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shell__user-details {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  line-height: 1.2;
+}
+
+.shell__user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+}
+
+.shell__user-role {
+  font-size: 0.725rem;
+  color: #5f6368;
+}
+
 .shell__main {
   flex: 1 1 auto;
   padding: 24px;
   outline: none;
+  background-color: #f8fafc;
+  overflow-y: auto;
 }

@@ -1,33 +1,96 @@
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
-import { provideRouter, TitleStrategy } from '@angular/router';
+import { Router, provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from './app.routes';
 import { AppTitleStrategy, PageTitle } from './layout/page-title';
+import { AuthService } from './core/services/auth.service';
 
 describe('app routing', () => {
+  let authService: AuthService;
+
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideRouter(routes), { provide: TitleStrategy, useClass: AppTitleStrategy }],
+      providers: [
+        provideRouter(routes, withComponentInputBinding()),
+        provideHttpClient(),
+        AuthService,
+        { provide: TitleStrategy, useClass: AppTitleStrategy },
+      ],
     });
+    authService = TestBed.inject(AuthService);
   });
 
-  it('should redirect the root path to the dashboard', async () => {
+  it('should redirect unauthenticated users to /login', async () => {
+    authService.clearSession();
     const harness = await RouterTestingHarness.create('/');
 
-    expect(TestBed.inject(PageTitle).text()).toBe('Dashboard');
-    expect(harness.routeNativeElement?.querySelector('app-dashboard')).toBeTruthy();
+    expect(TestBed.inject(Router).url).toBe('/login');
+    expect(TestBed.inject(PageTitle).text()).toBe('Login');
+    expect(harness.fixture.nativeElement.querySelector('app-login')).toBeTruthy();
   });
 
-  it('should sync the document title and the shell title on navigation', async () => {
-    const harness = await RouterTestingHarness.create('/products');
+  it('should allow access to dashboard when authenticated', async () => {
+    authService.setToken('test-token');
+    authService.currentUser.set({
+      uuid: '019352a1-7b40-7000-8000-000000000030',
+      userUuid: '019352a1-7b40-7000-8000-000000000001',
+      bidangUuid: '019352a1-7b40-7000-8000-000000000010',
+      pangkatGolonganUuid: null,
+      tipe: 'admin',
+      status: 'aktif',
+      nip: '199701012022031001',
+      nama: 'Agung Sapto Margono',
+      jabatan: 'Auditor Ahli Pertama',
+      kategoriJabatan: null,
+      peran: null,
+      kategoriKebutuhanJamPelatihan: null,
+      user: { uuid: '019352a1-7b40-7000-8000-000000000001', username: '199701012022031001' },
+      bidang: { uuid: '019352a1-7b40-7000-8000-000000000010', bidang: 'Inspektorat' },
+      pangkatGolongan: null,
+    });
 
-    expect(TestBed.inject(PageTitle).text()).toBe('Products');
-    expect(TestBed.inject(Title).getTitle()).toBe('Products');
+    const harness = await RouterTestingHarness.create('/');
+    expect(TestBed.inject(Router).url).toBe('/dashboard');
+    expect(TestBed.inject(PageTitle).text()).toBe('Dashboard');
+    expect(harness.fixture.nativeElement.querySelector('app-dashboard')).toBeTruthy();
+  });
 
-    await harness.navigateByUrl('/users');
+  it('should sync document title on navigation across list and form pages', async () => {
+    authService.setToken('test-token');
+    authService.currentUser.set({
+      uuid: 'test',
+      userUuid: 'test',
+      bidangUuid: 'test',
+      pangkatGolonganUuid: null,
+      tipe: 'admin',
+      status: 'aktif',
+      nip: '123',
+      nama: 'Tester',
+      jabatan: null,
+      kategoriJabatan: null,
+      peran: null,
+      kategoriKebutuhanJamPelatihan: null,
+      user: { uuid: 'test', username: 'tester' },
+      bidang: { uuid: 'test', bidang: 'Test' },
+      pangkatGolongan: null,
+    });
 
-    expect(TestBed.inject(PageTitle).text()).toBe('Users');
-    expect(TestBed.inject(Title).getTitle()).toBe('Users');
+    const harness = await RouterTestingHarness.create('/bidang');
+    expect(TestBed.inject(PageTitle).text()).toBe('Data Bidang');
+    expect(TestBed.inject(Title).getTitle()).toBe('Data Bidang');
+
+    await harness.navigateByUrl('/bidang/create');
+    expect(TestBed.inject(PageTitle).text()).toBe('Tambah Bidang');
+    expect(TestBed.inject(Title).getTitle()).toBe('Tambah Bidang');
+
+    await harness.navigateByUrl('/pegawai/create');
+    expect(TestBed.inject(PageTitle).text()).toBe('Tambah Pegawai');
+    expect(TestBed.inject(Title).getTitle()).toBe('Tambah Pegawai');
+
+    await harness.navigateByUrl('/pangkat-golongan/create');
+    expect(TestBed.inject(PageTitle).text()).toBe('Tambah Pangkat & Golongan');
+    expect(TestBed.inject(Title).getTitle()).toBe('Tambah Pangkat & Golongan');
   });
 });
