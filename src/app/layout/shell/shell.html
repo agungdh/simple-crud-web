@@ -43,9 +43,16 @@
       }
       <span class="shell__title">{{ pageTitle.text() }}</span>
       <span class="shell__spacer"></span>
-      <button mat-icon-button type="button" aria-label="Account">
-        <mat-icon>account_circle</mat-icon>
-      </button>
+
+      <div class="shell__user-info">
+        <div class="shell__user-details">
+          <span class="shell__user-name">{{ authService.currentUser()?.nama || 'Pengguna' }}</span>
+          <span class="shell__user-role">{{ authService.currentUser()?.tipe === 'admin' ? 'Administrator' : 'Pegawai' }}</span>
+        </div>
+        <button mat-icon-button type="button" aria-label="Keluar dari sistem" (click)="onLogout()" title="Keluar">
+          <mat-icon aria-hidden="true">logout</mat-icon>
+        </button>
+      </div>
     </mat-toolbar>
 
     <main id="main-content" class="shell__main" tabindex="-1">

@@ -1,10 +1,17 @@
 import { Routes } from '@angular/router';
 import { Shell } from './layout/shell/shell';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    title: 'Login',
+    loadComponent: () => import('./features/login/login').then((m) => m.Login),
+  },
+  {
     path: '',
     component: Shell,
+    canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
@@ -13,19 +20,20 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
-        path: 'products',
-        title: 'Products',
-        loadComponent: () => import('./features/products/products').then((m) => m.Products),
+        path: 'pegawai',
+        title: 'Data Pegawai',
+        loadComponent: () => import('./features/pegawai/pegawai').then((m) => m.Pegawai),
       },
       {
-        path: 'categories',
-        title: 'Categories',
-        loadComponent: () => import('./features/categories/categories').then((m) => m.Categories),
+        path: 'bidang',
+        title: 'Data Bidang',
+        loadComponent: () => import('./features/bidang/bidang').then((m) => m.Bidang),
       },
       {
-        path: 'users',
-        title: 'Users',
-        loadComponent: () => import('./features/users/users').then((m) => m.Users),
+        path: 'pangkat-golongan',
+        title: 'Pangkat & Golongan',
+        loadComponent: () =>
+          import('./features/pangkat-golongan/pangkat-golongan').then((m) => m.PangkatGolongan),
       },
       { path: '**', redirectTo: 'dashboard' },
     ],
