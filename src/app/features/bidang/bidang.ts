@@ -82,13 +82,6 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="uuid">
-                <th mat-header-cell *matHeaderCellDef>UUID</th>
-                <td mat-cell *matCellDef="let element">
-                  <code class="uuid-badge">{{ element.uuid }}</code>
-                </td>
-              </ng-container>
-
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef class="col-actions">Aksi</th>
                 <td mat-cell *matCellDef="let element" class="col-actions">
@@ -178,13 +171,6 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
       width: 120px;
       text-align: right;
     }
-    .uuid-badge {
-      background: #f1f3f4;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      color: #5f6368;
-    }
     .loading-state {
       display: flex;
       flex-direction: column;
@@ -211,7 +197,7 @@ export class Bidang {
   protected readonly isLoading = signal<boolean>(true);
   protected readonly searchQuery = signal<string>('');
 
-  protected readonly displayedColumns: string[] = ['nomor', 'bidang', 'uuid', 'actions'];
+  protected readonly displayedColumns: string[] = ['nomor', 'bidang', 'actions'];
 
   protected readonly filteredItems = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();

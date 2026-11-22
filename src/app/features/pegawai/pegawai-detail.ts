@@ -106,16 +106,6 @@ import { StatusChip } from '../../shared/components/status-chip/status-chip';
               <dt>Kebutuhan Jam Pelatihan</dt>
               <dd>{{ pegawai()!.kategoriKebutuhanJamPelatihan || '-' }}</dd>
             </div>
-
-            <div class="info-item">
-              <dt>UUID Pegawai</dt>
-              <dd><small class="text-muted">{{ pegawai()!.uuid }}</small></dd>
-            </div>
-
-            <div class="info-item">
-              <dt>UUID User Account</dt>
-              <dd><small class="text-muted">{{ pegawai()!.userUuid }}</small></dd>
-            </div>
           </dl>
         }
       </mat-card>
